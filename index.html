@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BioLearn SA - AI-powered Life Sciences tutoring for South African CAPS curriculum Grades 10-12">
+    <meta name="theme-color" content="#0f172a">
+    <title>BioLearn SA | AI Life Sciences Tutor</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQmlvTGVhcm4gU0EiLCJzaG9ydF9uYW1lIjoiQmlvTGVhcm4iLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBmMTcyYSIsInRoZW1lX2NvbG9yIjoiIzBmMTcyYSIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSEJ5WlhObGNuWmxRWE53WldOMFVtRjBhVzl1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIWnBaWGRDYjNnOUlqQWdNQ0F3TURBZ01EQWlJR1pwYkd3NkltNXZibVVpSUhkcFpIUm9QU0l4SWlCbWIyNTBMV1poYldsc2VUMGlJMlptTW1KaU5tWXRZMlF5TVMwME1tSXdMV0l5TURndE5XWXdPVEkxWkRCaE1tRTJJaUIyYVdWMzF3b2dJQ0FnUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIQnlaWE5sY25abFFYTndaV04wVW1GMGFXOXVjejBpZEc5d0xXSnBiaTFvYjNOMExXSnZiMnN0WTI5dWRHRnBibVZ5TDNKMWJuUnBiV1V1Y0hKdlpIVmpkR2x2Ymk5aWFXNHRhRzl6ZEMxaWIyOXJMV052Ym5SaGFXNWxjaTlpYVc0dGFXNXpkR0ZzYkMxaWIyOXJMV052Ym5SaGFXNWxjaUl2Iiwic2l6ZXMiOiIxOTJ4MTkyIn1dfQ==">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4ade80',
+                        secondary: '#3b82f6',
+                        accent: '#8b5cf6',
+                        dark: '#0f172a',
+                        darker: '#020617'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- IndexedDB Wrapper -->
+    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-strong {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(74, 222, 128, 0.8); }
+        }
+        
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-slide-up { animation: slide-up 0.5s ease-out; }
+        .animate-fade-in { animation: fade-in 0.3s ease-out; }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* Molecule Background */
+        .molecule-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234ade80' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            z-index: -1;
+        }
+        
+        /* Gradient Text */
+        .text-gradient {
+            background: linear-gradient(135deg, #4ade80 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Step Cards */
+        .step-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .step-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -10px rgba(74, 222, 128, 0.2);
+        }
+        
+        .step-card.active {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        /* Chat Interface */
+        .chat-message {
+            animation: slide-up 0.3s ease-out;
+        }
+        
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+            margin: 0 2px;
+        }
+        
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        /* Progress Ring */
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        /* Interactive Elements */
+        .btn-primary {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: #0f172a;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(74, 222, 128, 0.5);
+        }
+        
+        .btn-secondary {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Form Elements */
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4ade80;
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+        }
+        
+        /* Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            padding: 16px 24px;
+            background: #1e293b;
+            border-left: 4px solid #4ade80;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+        }
+        
+        /* Code blocks */
+        pre {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+        }
+        
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; color: black; }
+        }
+        
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #ef4444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+        
+        .offline-indicator.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Offline Indicator -->
+    <div id="offlineIndicator" class="offline-indicator">
+        <i class="fas fa-wifi-slash mr-2"></i> You're offline. Using cached content.
+    </div>
+
+    <!-- Molecule Background -->
+    <div class="molecule-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="glass-strong fixed w-full z-50 top-0 border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="router.navigate('dashboard')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center animate-float">
+                        <i class="fas fa-dna text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-display font-bold text-xl tracking-tight text-white">BioLearn<span class="text-green-400">SA</span></span>
+                        <div class="text-xs text-slate-400 -mt-1">CAPS Aligned</div>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-1">
+                    <button onclick="router.navigate('dashboard')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/5 transition text-sm font-medium text-slate-300 hover:text-white" data-route="dashboard">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </button>
+                    <button onclick="router.navigate('curriculum')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/5 transition text-sm font-medium text-slate-300 hover:text-white" data-route="curriculum">
+                        <i class="fas fa-book mr-2"></i>Curriculum
+                    </button>
+                    <button onclick="router.navigate('progress')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/5 transition text-sm font-medium text-slate-300 hover:text-white" data-route="progress">
+                        <i class="fas fa-chart-line mr-2"></i>Progress
+                    </button>
+                    <button onclick="aiTutor.toggle()" class="ml-4 bg-green-500/10 text-green-400 px-4 py-2 rounded-lg hover:bg-green-500/20 transition flex items-center gap-2 border border-green-500/30">
+                        <i class="fas fa-robot"></i>
+                        <span class="hidden lg:inline">AI Tutor</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div id="userMenu" class="hidden md:flex items-center gap-3">
+                        <div class="text-right hidden lg:block">
+                            <div id="userName" class="text-sm font-medium text-white">Guest</div>
+                            <div id="userGrade" class="text-xs text-slate-400">Grade 10</div>
+                        </div>
+                        <button onclick="auth.toggleMenu()" class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold hover:ring-2 hover:ring-green-400 transition">
+                            <span id="userInitials">G</span>
+                        </button>
+                    </div>
+                    <button class="md:hidden text-2xl text-slate-300" onclick="ui.toggleMobileMenu()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- User Dropdown Menu -->
+    <div id="userDropdown" class="fixed right-4 top-20 w-48 glass-strong rounded-xl border border-slate-700 shadow-2xl hidden z-50">
+        <div class="p-2 space-y-1">
+            <button onclick="router.navigate('profile')" class="w-full text-left px-4 py-2 rounded-lg hover:bg-white/5 transition text-sm">
+                <i class="fas fa-user mr-2 text-slate-400"></i> Profile
+            </button>
+            <button onclick="router.navigate('settings')" class="w-full text-left px-4 py-2 rounded-lg hover:bg-white/5 transition text-sm">
+                <i class="fas fa-cog mr-2 text-slate-400"></i> Settings
+            </button>
+            <div class="border-t border-slate-700 my-1"></div>
+            <button onclick="auth.logout()" class="w-full text-left px-4 py-2 rounded-lg hover:bg-red-500/10 transition text-sm text-red-400">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 z-40 glass-strong transform translate-x-full transition-transform duration-300 md:hidden pt-20">
+        <div class="p-6 space-y-2">
+            <button onclick="router.navigate('dashboard'); ui.toggleMobileMenu()" class="block w-full text-left py-3 px-4 rounded-lg hover:bg-white/5 transition border-b border-slate-700/50">
+                <i class="fas fa-home mr-3 text-slate-400"></i> Dashboard
+            </button>
+            <button onclick="router.navigate('curriculum'); ui.toggleMobileMenu()" class="block w-full text-left py-3 px-4 rounded-lg hover:bg-white/5 transition border-b border-slate-700/50">
+                <i class="fas fa-book mr-3 text-slate-400"></i> Curriculum
+            </button>
+            <button onclick="router.navigate('progress'); ui.toggleMobileMenu()" class="block w-full text-left py-3 px-4 rounded-lg hover:bg-white/5 transition border-b border-slate-700/50">
+                <i class="fas fa-chart-line mr-3 text-slate-400"></i> Progress
+            </button>
+            <button onclick="aiTutor.toggle(); ui.toggleMobileMenu()" class="block w-full text-left py-3 px-4 rounded-lg hover:bg-white/5 transition text-green-400">
+                <i class="fas fa-robot mr-3"></i> AI Tutor
+            </button>
+            <div class="pt-4 border-t border-slate-700 mt-4">
+                <button onclick="auth.logout()" class="block w-full text-left py-3 px-4 rounded-lg hover:bg-red-500/10 transition text-red-400">
+                    <i class="fas fa-sign-out-alt mr-3"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="pt-20 pb-24 min-h-screen">
+        
+        <!-- Auth View (Login/Register) -->
+        <div id="authView" class="hidden min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md">
+                <div class="glass rounded-2xl p-8 shadow-2xl">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center mx-auto mb-4 animate-float">
+                            <i class="fas fa-dna text-white text-3xl"></i>
+                        </div>
+                        <h1 class="font-display text-3xl font-bold text-white mb-2">Welcome to BioLearn SA</h1>
+                        <p class="text-slate-400">Master Life Sciences with AI-powered tutoring</p>
+                    </div>
+
+                    <div id="authTabs" class="flex gap-2 mb-6 p-1 bg-slate-800/50 rounded-lg">
+                        <button onclick="auth.switchTab('login')" id="loginTab" class="flex-1 py-2 rounded-md text-sm font-medium transition bg-green-500 text-slate-900">Login</button>
+                        <button onclick="auth.switchTab('register')" id="registerTab" class="flex-1 py-2 rounded-md text-sm font-medium transition text-slate-400 hover:text-white">Register</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" onsubmit="auth.login(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Email</label>
+                            <input type="email" id="loginEmail" required class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-green-500 transition" placeholder="student@school.co.za">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
+                            <input type="password" id="loginPassword" required class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-green-500 transition" placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="w-full btn-primary py-3 rounded-lg font-semibold">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </button>
+                        <div class="text-center text-sm text-slate-400">
+                            <button type="button" onclick="auth.guestLogin()" class="text-green-400 hover:underline">Continue as Guest</button>
+                        </div>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="registerForm" onsubmit="auth.register(event)" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
+                            <input type="text" id="regName" required class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-green-500 transition" placeholder="John Smith">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Grade</label>
+                            <select id="regGrade" required class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-green-500 transition">
+                                <option value="10">Grade 10</option>
+                                <option value="11">Grade 11</option>
+                                <option value="12">Grade 12</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Email</label>
+                            <input type="email" id="regEmail" required class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-green-500 transition" placeholder="student@school.co.za">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
+                            <input type="password" id="regPassword" required minlength="6" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-green-500 transition" placeholder="Min 6 characters">
+                        </div>
+                        <button type="submit" class="w-full btn-primary py-3 rounded-lg font-semibold">
+                            <i class="fas fa-user-plus mr-2"></i>Create Account
+                        </button>
+                    </form>
+
+                    <div class="mt-6 pt-6 border-t border-slate-700 text-center text-xs text-slate-500">
+                        CAPS Curriculum aligned • Offline capable • Free for South African learners
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboardView" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
+            <!-- Welcome Banner -->
+            <div class="glass rounded-2xl p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-green-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -ml-10 -mb-10"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="flex-1">
+                        <h1 class="font-display text-4xl md:text-5xl font-bold mb-2">
+                            Welcome back, <span id="dashName" class="text-gradient">Student</span>
+                        </h1>
+                        <p class="text-slate-400 text-lg mb-4 max-w-2xl">
+                            Ready to continue your Life Sciences journey? You're making great progress!
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="dashboard.continueLearning()" class="btn-primary px-6 py-3 rounded-xl flex items-center gap-2 pulse-glow">
+                                <i class="fas fa-play"></i>
+                                <span>Continue Learning</span>
+                            </button>
+                            <button onclick="dashboard.startDailyChallenge()" class="btn-secondary px-6 py-3 rounded-xl flex items-center gap-2">
+                                <i class="fas fa-trophy"></i>
+                                <span>Daily Challenge</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="flex gap-4 flex-wrap md:flex-nowrap">
+                        <div class="glass p-4 rounded-xl min-w-[120px] text-center">
+                            <div class="text-3xl font-bold text-green-400" id="dashProgress">0%</div>
+                            <div class="text-xs text-slate-400 mt-1">Overall</div>
+                        </div>
+                        <div class="glass p-4 rounded-xl min-w-[120px] text-center">
+                            <div class="text-3xl font-bold text-blue-400" id="dashStreak">0</div>
+                            <div class="text-xs text-slate-400 mt-1">Day Streak</div>
+                        </div>
+                        <div class="glass p-4 rounded-xl min-w-[120px] text-center">
+                            <div class="text-3xl font-bold text-purple-400" id="dashPoints">0</div>
+                            <div class="text-xs text-slate-400 mt-1">Points</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Topic & Quick Actions -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Current Topic -->
+                <div class="lg:col-span-2 glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-display text-xl font-bold flex items-center gap-2">
+                            <i class="fas fa-book-open text-green-400"></i>
+                            Continue Where You Left Off
+                        </h3>
+                        <span class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full">In Progress</span>
+                    </div>
+                    
+                    <div id="currentTopicCard" class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 hover:border-green-500/50 transition cursor-pointer" onclick="dashboard.continueLearning()">
+                        <div class="flex items-start gap-4">
+                            <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center flex-shrink-0 text-2xl">
+                                <i class="fas fa-flask text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm text-green-400 font-medium mb-1" id="currentSubject">Grade 10 • Chemistry of Life</div>
+                                <h4 class="text-xl font-bold text-white mb-2" id="currentLesson">Testing for Organic Compounds</h4>
+                                <p class="text-slate-400 text-sm mb-3" id="currentDesc">Learn to identify carbohydrates, proteins, and lipids using chemical tests.</p>
+                                
+                                <div class="flex items-center gap-4">
+                                    <div class="flex-1">
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-slate-400">Progress</span>
+                                            <span class="text-green-400" id="currentProgress">60%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-700 rounded-full h-2">
+                                            <div id="currentProgressBar" class="bg-green-500 h-2 rounded-full transition-all duration-500" style="width: 60%"></div>
+                                        </div>
+                                    </div>
+                                    <button class="px-4 py-2 bg-green-500 hover:bg-green-600 text-slate-900 rounded-lg font-semibold transition">
+                                        Resume
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="mt-6">
+                        <h4 class="font-semibold mb-3 text-slate-300">Recent Activity</h4>
+                        <div id="activityList" class="space-y-2">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Daily Goal -->
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="font-display text-lg font-bold mb-4">Daily Goal</h3>
+                        <div class="relative w-32 h-32 mx-auto mb-4">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="64" cy="64" r="56" stroke="#1e293b" stroke-width="12" fill="none"></circle>
+                                <circle id="dailyGoalCircle" cx="64" cy="64" r="56" stroke="#4ade80" stroke-width="12" fill="none" 
+                                    stroke-dasharray="351.86" stroke-dashoffset="351.86" stroke-linecap="round" class="transition-all duration-1000"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                <span id="dailyGoalPercent" class="text-2xl font-bold text-white">0%</span>
+                                <span class="text-xs text-slate-400">of 30 min</span>
+                            </div>
+                        </div>
+                        <p id="dailyGoalText" class="text-center text-sm text-slate-400">Study for 30 minutes today</p>
+                    </div>
+
+                    <!-- Achievements -->
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="font-display text-lg font-bold mb-4">Latest Achievement</h3>
+                        <div class="flex items-center gap-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                            <div class="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 text-xl">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-yellow-400">On Fire!</div>
+                                <div class="text-xs text-slate-400">5-day study streak</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Topics -->
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="font-display text-lg font-bold mb-4">Quick Review</h3>
+                        <div class="space-y-2">
+                            <button onclick="aiTutor.ask('Explain photosynthesis step by step')" class="w-full text-left p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition text-sm flex items-center gap-2">
+                                <i class="fas fa-leaf text-green-400"></i>
+                                Photosynthesis
+                            </button>
+                            <button onclick="aiTutor.ask('What is the difference between mitosis and meiosis?')" class="w-full text-left p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition text-sm flex items-center gap-2">
+                                <i class="fas fa-divide text-blue-400"></i>
+                                Cell Division
+                            </button>
+                            <button onclick="aiTutor.ask('How do I solve genetics problems?')" class="w-full text-left p-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition text-sm flex items-center gap-2">
+                                <i class="fas fa-dna text-purple-400"></i>
+                                Genetics
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Curriculum View -->
+        <div id="curriculumView" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h2 class="font-display text-3xl font-bold text-white">Curriculum Explorer</h2>
+                    <p class="text-slate-400">South African CAPS Life Sciences Grades 10-12</p>
+                </div>
+                <div class="flex gap-2">
+                    <select id="gradeFilter" onchange="curriculum.filterGrade(this.value)" class="bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:border-green-500 transition">
+                        <option value="all">All Grades</option>
+                        <option value="10">Grade 10</option>
+                        <option value="11">Grade 11</option>
+                        <option value="12">Grade 12</option>
+                    </select>
+                    <select id="termFilter" onchange="curriculum.filterTerm(this.value)" class="bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:border-green-500 transition">
+                        <option value="all">All Terms</option>
+                        <option value="1">Term 1</option>
+                        <option value="2">Term 2</option>
+                        <option value="3">Term 3</option>
+                        <option value="4">Term 4</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="curriculumGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Lesson View -->
+        <div id="lessonView" class="hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in">
+            <button onclick="router.back()" class="mb-6 flex items-center gap-2 text-slate-400 hover:text-white transition group">
+                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition"></i>
+                Back to Dashboard
+            </button>
+
+            <div class="glass rounded-2xl overflow-hidden">
+                <!-- Lesson Header -->
+                <div class="p-8 border-b border-slate-700 bg-gradient-to-r from-slate-800/50 to-transparent">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span id="lessonGrade" class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">Grade 10</span>
+                        <span id="lessonTerm" class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm font-medium">Term 1</span>
+                    </div>
+                    <h1 id="lessonTitle" class="font-display text-3xl md:text-4xl font-bold text-white mb-4">Lesson Title</h1>
+                    <p id="lessonDescription" class="text-slate-400 text-lg mb-6">Lesson description goes here.</p>
+                    
+                    <!-- Progress Steps -->
+                    <div id="lessonSteps" class="flex items-center gap-2 overflow-x-auto pb-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Lesson Content -->
+                <div id="lessonContent" class="p-8 space-y-6">
+                    <!-- Dynamic content -->
+                </div>
+
+                <!-- Lesson Navigation -->
+                <div class="p-8 border-t border-slate-700 bg-slate-800/30 flex justify-between items-center">
+                    <button onclick="lesson.previousStep()" id="prevStepBtn" class="px-6 py-3 rounded-lg border border-slate-600 hover:bg-slate-800 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-arrow-left"></i>
+                        Previous
+                    </button>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="aiTutor.ask('Help me understand this lesson')" class="px-6 py-3 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition flex items-center gap-2">
+                            <i class="fas fa-robot"></i>
+                            Ask AI
+                        </button>
+                        <button onclick="lesson.nextStep()" id="nextStepBtn" class="btn-primary px-6 py-3 rounded-lg flex items-center gap-2">
+                            Next Step
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress View -->
+        <div id="progressView" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in">
+            <h2 class="font-display text-3xl font-bold text-white mb-8">Your Progress</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="glass rounded-2xl p-6">
+                    <h3 class="font-semibold text-slate-300 mb-4">Overall Completion</h3>
+                    <div class="relative w-40 h-40 mx-auto">
+                        <canvas id="progressChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <span id="overallPercent" class="text-3xl font-bold text-white">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass rounded-2xl p-6 lg:col-span-2">
+                    <h3 class="font-semibold text-slate-300 mb-4">Grade Breakdown</h3>
+                    <div class="space-y-4" id="gradeBreakdown">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6">
+                <h3 class="font-semibold text-slate-300 mb-4">Recent Achievements</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="achievementsGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile View -->
+        <div id="profileView" class="hidden max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in">
+            <div class="glass rounded-2xl p-8">
+                <h2 class="font-display text-3xl font-bold text-white mb-8">Profile Settings</h2>
+                
+                <form onsubmit="auth.updateProfile(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Display Name</label>
+                        <input type="text" id="profileName" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-green-500 transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                        <input type="email" id="profileEmail" disabled class="w-full bg-slate-800/30 border border-slate-700 rounded-lg px-4 py-3 text-slate-400 cursor-not-allowed">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Grade</label>
+                        <select id="profileGrade" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-green-500 transition">
+                            <option value="10">Grade 10</option>
+                            <option value="11">Grade 11</option>
+                            <option value="12">Grade 12</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">School (Optional)</label>
+                        <input type="text" id="profileSchool" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:border-green-500 transition" placeholder="Your school name">
+                    </div>
+                    
+                    <div class="pt-4 border-t border-slate-700 flex gap-4">
+                        <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-semibold">
+                            Save Changes
+                        </button>
+                        <button type="button" onclick="router.navigate('dashboard')" class="px-6 py-3 rounded-lg border border-slate-600 hover:bg-slate-800 transition">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- AI Tutor Chat -->
+    <div id="aiChat" class="fixed bottom-24 right-4 w-96 max-w-[calc(100vw-2rem)] glass-strong rounded-2xl shadow-2xl transform translate-y-[120%] transition-transform duration-300 z-50 flex flex-col max-h-[600px] border border-slate-700">
+        <div class="p-4 border-b border-slate-700 flex items-center justify-between bg-gradient-to-r from-green-600 to-blue-600 rounded-t-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
+                    <i class="fas fa-robot text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white">BioBot Tutor</h3>
+                    <p class="text-xs text-green-100">CAPS Aligned • Always Learning</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="aiTutor.clearChat()" class="text-white/60 hover:text-white transition" title="Clear chat">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <button onclick="aiTutor.toggle()" class="text-white/60 hover:text-white transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 max-h-96 min-h-[300px]">
+            <div class="chat-message flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white text-xs"></i>
+                </div>
+                <div class="bg-slate-800 rounded-lg p-3 text-sm max-w-[85%] text-slate-200">
+                    Hello! I'm BioBot, your AI Life Sciences tutor. I know the entire South African CAPS curriculum for Grades 10-12. Ask me anything!
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-700 space-y-3 bg-slate-800/30">
+            <div class="flex gap-2 overflow-x-auto pb-2 text-xs scrollbar-hide">
+                <button onclick="aiTutor.quickAsk('Explain photosynthesis')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition border border-slate-600">Photosynthesis?</button>
+                <button onclick="aiTutor.quickAsk('Mitosis vs Meiosis')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition border border-slate-600">Cell Division</button>
+                <button onclick="aiTutor.quickAsk('Genetics problem help')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition border border-slate-600">Genetics</button>
+                <button onclick="aiTutor.quickAsk('Evolution evidence')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition border border-slate-600">Evolution</button>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ask me anything about Life Sciences..." 
+                    class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-green-500 transition text-white placeholder-slate-500"
+                    onkeypress="if(event.key==='Enter') aiTutor.sendMessage()">
+                <button onclick="aiTutor.sendMessage()" class="bg-green-500 hover:bg-green-600 text-slate-900 px-4 py-2 rounded-lg transition font-semibold">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating AI Button -->
+    <button onclick="aiTutor.toggle()" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-green-500 to-blue-500 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:scale-110 transition-transform z-40 pulse-glow no-print">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/90 z-[60] hidden flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-slate-300">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // DATABASE & STORAGE
+        // ==========================================
+        const db = {
+            name: 'BioLearnDB',
+            version: 1,
+            instance: null,
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.name, this.version);
+                    
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.instance = request.result;
+                        resolve(this.instance);
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        
+                        // Users store
+                        if (!db.objectStoreNames.contains('users')) {
+                            const userStore = db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
+                            userStore.createIndex('email', 'email', { unique: true });
+                        }
+                        
+                        // Progress store
+                        if (!db.objectStoreNames.contains('progress')) {
+                            const progressStore = db.createObjectStore('progress', { keyPath: 'id', autoIncrement: true });
+                            progressStore.createIndex('userId', 'userId', { unique: false });
+                            progressStore.createIndex('lessonId', 'lessonId', { unique: false });
+                        }
+                        
+                        // Chat history
+                        if (!db.objectStoreNames.contains('chatHistory')) {
+                            const chatStore = db.createObjectStore('chatHistory', { keyPath: 'id', autoIncrement: true });
+                            chatStore.createIndex('userId', 'userId', { unique: false });
+                        }
+                        
+                        // Cache store
+                        if (!db.objectStoreNames.contains('cache')) {
+                            db.createObjectStore('cache', { keyPath: 'key' });
+                        }
+                    };
+                });
+            },
+
+            async get(storeName, key) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.instance.transaction([storeName], 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.get(key);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            },
+
+            async getAll(storeName, indexName, value) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.instance.transaction([storeName], 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const target = indexName ? store.index(indexName) : store;
+                    const request = value ? target.getAll(value) : target.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            },
+
+            async put(storeName, data) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.instance.transaction([storeName], 'readwrite');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.put(data);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            },
+
+            async delete(storeName, key) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.instance.transaction([storeName], 'readwrite');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.delete(key);
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            }
+        };
+
+        // ==========================================
+        // CURRICULUM DATA
+        // ==========================================
+        const curriculumData = {
+            10: {
+                name: "Grade 10: Foundations of Life",
+                color: "blue",
+                topics: [
+                    {
+                        id: "g10-chem-life",
+                        title: "Chemistry of Life",
+                        term: 1,
+                        description: "Inorganic and organic compounds, chemical tests",
+                        duration: "2 weeks",
+                        steps: [
+                            { title: "Introduction", type: "video", content: "Welcome to Chemistry of Life" },
+                            { title: "Inorganic Compounds", type: "lesson", content: "Water and salts" },
+                            { title: "Organic Compounds", type: "lesson", content: "Carbs, lipids, proteins" },
+                            { title: "Chemical Tests", type: "lab", content: "Benedict's, iodine, Biuret tests" },
+                            { title: "Assessment", type: "quiz", content: "Test your knowledge" }
+                        ]
+                    },
+                    {
+                        id: "g10-cells",
+                        title: "Cell Structure",
+                        term: 1,
+                        description: "Cell theory, organelles, microscopy",
+                        duration: "2 weeks",
+                        steps: 5
+                    },
+                    {
+                        id: "g10-cell-division",
+                        title: "Cell Division",
+                        term: 1,
+                        description: "Mitosis and meiosis",
+                        duration: "2 weeks",
+                        steps: 4
+                    },
+                    {
+                        id: "g10-tissues",
+                        title: "Plant & Animal Tissues",
+                        term: 1,
+                        description: "Types and functions of tissues",
+                        duration: "2 weeks",
+                        steps: 4
+                    },
+                    {
+                        id: "g10-photosynthesis",
+                        title: "Photosynthesis",
+                        term: 2,
+                        description: "Process, factors, practicals",
+                        duration: "2 weeks",
+                        steps: 5
+                    },
+                    {
+                        id: "g10-respiration",
+                        title: "Cellular Respiration",
+                        term: 2,
+                        description: "Aerobic and anaerobic processes",
+                        duration: "2 weeks",
+                        steps: 4
+                    },
+                    {
+                        id: "g10-transport",
+                        title: "Transport Systems",
+                        term: 2,
+                        description: "Plants and human circulatory system",
+                        duration: "2 weeks",
+                        steps: 5
+                    },
+                    {
+                        id: "g10-biodiversity",
+                        title: "Biodiversity",
+                        term: 3,
+                        description: "Five kingdoms, classification, SA biomes",
+                        duration: "4 weeks",
+                        steps: 6
+                    },
+                    {
+                        id: "g10-environment",
+                        title: "Environmental Studies",
+                        term: 4,
+                        description: "Ecosystems, human impact, conservation",
+                        duration: "4 weeks",
+                        steps: 5
+                    }
+                ]
+            },
+            11: {
+                name: "Grade 11: Deepening Understanding",
+                color: "purple",
+                topics: [
+                    {
+                        id: "g11-population",
+                        title: "Population Ecology",
+                        term: 1,
+                        description: "Population growth, ecological relationships",
+                        duration: "2 weeks",
+                        steps: 4
+                    },
+                    {
+                        id: "g11-nutrition",
+                        title: "Human Nutrition",
+                        term: 1,
+                        description: "Digestive system, enzymes, diet",
+                        duration: "2 weeks",
+                        steps: 5
+                    },
+                    {
+                        id: "g11-gas-exchange",
+                        title: "Gaseous Exchange",
+                        term: 1,
+                        description: "Breathing mechanisms, gas exchange surfaces",
+                        duration: "2 weeks",
+                        steps: 4
+                    },
+                    {
+                        id: "g11-excretion",
+                        title: "Excretion & Homeostasis",
+                        term: 1,
+                        description: "Kidney function, osmoregulation",
+                        duration: "2 weeks",
+                        steps: 4
+                    },
+                    {
+                        id: "g11-plant-responses",
+                        title: "Plant Responses",
+                        term: 2,
+                        description: "Tropisms, plant hormones",
+                        duration: "2 weeks",
+                        steps: 4
+                    },
+                    {
+                        id: "g11-reproduction",
+                        title: "Human Reproduction",
+                        term: 2,
+                        description: "Reproductive systems, menstrual cycle, contraception",
+                        duration: "3 weeks",
+                        steps: 6
+                    },
+                    {
+                        id: "g11-genetics",
+                        title: "Genetics",
+                        term: 3,
+                        description: "Inheritance, genetic disorders, engineering",
+                        duration: "4 weeks",
+                        steps: 6
+                    },
+                    {
+                        id: "g11-evolution",
+                        title: "Evolution",
+                        term: 3,
+                        description: "Natural selection, evidence, human evolution",
+                        duration: "3 weeks",
+                        steps: 5
+                    }
+                ]
+            },
+            12: {
+                name: "Grade 12: Mastery & Synthesis",
+                color: "orange",
+                topics: [
+                    {
+                        id: "g12-dna",
+                        title: "DNA, RNA & Protein Synthesis",
+                        term: 1,
+                        description: "Replication, transcription, translation, mutations",
+                        duration: "3 weeks",
+                        steps: 6
+                    },
+                    {
+                        id: "g12-meiosis",
+                        title: "Meiosis & Genetics",
+                        term: 1,
+                        description: "Detailed meiosis, crosses, pedigrees",
+                        duration: "3 weeks",
+                        steps: 6
+                    },
+                    {
+                        id: "g12-evolution",
+                        title: "Evolutionary Patterns",
+                        term: 2,
+                        description: "Hardy-Weinberg, speciation, human evolution",
+                        duration: "3 weeks",
+                        steps: 5
+                    },
+                    {
+                        id: "g12-biodiversity",
+                        title: "Biodiversity & Conservation",
+                        term: 2,
+                        description: "Measurement, threats, strategies",
+                        duration: "3 weeks",
+                        steps: 5
+                    },
+                    {
+                        id: "g12-reproduction",
+                        title: "Human Reproduction (Advanced)",
+                        term: 3,
+                        description: "Hormonal control, pregnancy, technologies",
+                        duration: "3 weeks",
+                        steps: 6
+                    },
+                    {
+                        id: "g12-research",
+                        title: "Research Project",
+                        term: 3,
+                        description: "Independent investigation",
+                        duration: "4 weeks",
+                        steps: 4
+                    }
+                ]
+            }
+        };
+
+        // ==========================================
+        // AI TUTOR ENGINE
+        // ==========================================
+        const aiTutor = {
+            context: [],
+            maxContext: 10,
+            
+            toggle() {
+                const chat = document.getElementById('aiChat');
+                const isOpen = !chat.classList.contains('translate-y-[120%]');
+                
+                if (isOpen) {
+                    chat.classList.add('translate-y-[120%]');
+                } else {
+                    chat.classList.remove('translate-y-[120%]');
+                    document.getElementById('chatInput').focus();
+                    this.loadHistory();
+                }
+            },
+
+            async loadHistory() {
+                const user = auth.currentUser;
+                if (!user) return;
+                
+                try {
+                    const history = await db.getAll('chatHistory', 'userId', user.id);
+                    if (history.length === 0) return;
+                    
+                    const container = document.getElementById('chatMessages');
+                    container.innerHTML = '';
+                    
+                    history.slice(-20).forEach(msg => {
+                        this.appendMessage(msg.content, msg.role, false);
+                    });
+                } catch (e) {
+                    console.error('Failed to load chat history:', e);
+                }
+            },
+
+            async saveMessage(content, role) {
+                const user = auth.currentUser;
+                if (!user) return;
+                
+                try {
+                    await db.put('chatHistory', {
+                        userId: user.id,
+                        role,
+                        content,
+                        timestamp: Date.now()
+                    });
+                } catch (e) {
+                    console.error('Failed to save message:', e);
+                }
+            },
+
+            quickAsk(question) {
+                document.getElementById('chatInput').value = question;
+                this.sendMessage();
+            },
+
+            async sendMessage() {
+                const input = document.getElementById('chatInput');
+                const message = input.value.trim();
+                if (!message) return;
+
+                // Add user message
+                this.appendMessage(message, 'user');
+                this.saveMessage(message, 'user');
+                input.value = '';
+
+                // Show typing
+                this.showTyping();
+
+                // Generate response
+                setTimeout(async () => {
+                    this.hideTyping();
+                    const response = this.generateResponse(message);
+                    this.appendMessage(response, 'ai');
+                    this.saveMessage(response, 'ai');
+                    this.speak(response);
+                }, 1000 + Math.random() * 1000);
+            },
+
+            appendMessage(text, role, animate = true) {
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.className = `chat-message flex gap-3 ${animate ? 'animate-slide-up' : ''}`;
+                
+                if (role === 'ai') {
+                    div.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white text-xs"></i>
+                        </div>
+                        <div class="bg-slate-800 rounded-lg p-3 text-sm max-w-[85%] text-slate-200 leading-relaxed">${this.formatMessage(text)}</div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div class="flex-1 flex justify-end">
+                            <div class="bg-green-600 text-white rounded-lg p-3 text-sm max-w-[85%]">${text}</div>
+                        </div>
+                    `;
+                }
+                
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            },
+
+            formatMessage(text) {
+                // Simple markdown-like formatting
+                return text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-green-400">$1</strong>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/(Step \d+:)/g, '<span class="text-blue-400 font-semibold">$1</span>');
+            },
+
+            showTyping() {
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.id = 'typingIndicator';
+                div.className = 'chat-message flex gap-3';
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot text-white text-xs"></i>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-3">
+                        <div class="typing-indicator">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            },
+
+            hideTyping() {
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) indicator.remove();
+            },
+
+            generateResponse(input) {
+                const lower = input.toLowerCase();
+                const user = auth.currentUser;
+                const grade = user ? user.grade : 10;
+                
+                // Context-aware responses based on grade level
+                if (lower.includes('benedict') || lower.includes('test sugar')) {
+                    return `**Benedict's Test for Reducing Sugars:**
+
+**Step 1:** Add 2cm³ food sample to test tube
+**Step 2:** Add equal amount of Benedict's solution (blue)
+**Step 3:** Heat in water bath (80°C) for 2-3 minutes
+**Step 4:** Observe color change:
+
+• Blue → No sugar
+• Green → Trace
+• Yellow → Moderate  
+• Orange/Brick Red → High amount
+
+**SA Context:** Test maize meal (pap) vs. sugar. Why does pap not change color much? (Starch is non-reducing!)`;
+                }
+                
+                else if (lower.includes('photosynthesis')) {
+                    if (grade >= 12) {
+                        return `**Advanced Photosynthesis (Grade 12 Level):**
+
+**Light-Dependent Reactions** (Thylakoid membrane):
+1. Photoactivation of chlorophyll
+2. Photolysis of water: 2H₂O → 4H⁺ + 4e⁻ + O₂
+3. Electron transport chain creates proton gradient
+4. ATP synthase produces ATP
+5. NADP⁺ reduced to NADPH
+
+**Light-Independent Reactions** (Calvin Cycle in stroma):
+1. Carbon fixation: CO₂ + RuBP → unstable 6C compound
+2. Reduction using ATP and NADPH
+3. Regeneration of RuBP
+
+**Factors affecting rate:** Light intensity, CO₂ concentration, temperature.`;
+                    }
+                    return `**Photosynthesis - The Basics:**
+
+**What:** Plants make glucose using sunlight
+**Where:** Chloroplasts (contains green chlorophyll)
+**Ingredients:** CO₂ + Water + Sunlight
+**Products:** Glucose + Oxygen
+
+**Simple Equation:**
+6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂
+
+**Why it matters for SA:** Crops like maize depend on photosynthesis. Understanding this helps farmers maximize yields!`;
+                }
+                
+                else if (lower.includes('mitosis') && lower.includes('meiosis')) {
+                    return `**Mitosis vs Meiosis Comparison:**
+
+| Feature | Mitosis | Meiosis |
+|---------|---------|---------|
+| **Purpose** | Growth, repair, asexual | Sexual reproduction |
+| **Divisions** | 1 | 2 |
+| **Daughter cells** | 2 | 4 |
+| **Chromosomes** | 2n (diploid) | n (haploid) |
+| **Genetic variation** | None | Crossing over, assortment |
+| **Where** | Somatic cells | Gamete formation |
+
+**Key memory aid:** Mitosis makes **tw**o **id**entical cells (TWID). Meiosis makes **f**our **d**ifferent cells (FOURD)!`;
+                }
+                
+                else if (lower.includes('punnett') || lower.includes('genetics') || lower.includes('cross')) {
+                    return `**Solving Genetics Problems - Step by Step:**
+
+**Step 1:** Determine parent genotypes from phenotypes
+**Step 2:** Identify possible gametes (separate alleles)
+**Step 3:** Draw Punnett square
+**Step 4:** Fill in combinations
+**Step 5:** Calculate ratios
+
+**Example:** Tall (Tt) × Short (tt)
+• Gametes: T, t from parent 1; t, t from parent 2
+• Offspring: 50% Tt (tall), 50% tt (short)
+
+**Need help with a specific problem?** Tell me the parents' phenotypes or genotypes!`;
+                }
+                
+                else if (lower.includes('hardy') || lower.includes('weinberg')) {
+                    return `**Hardy-Weinberg Equilibrium:**
+
+**Conditions:**
+1. Large population
+2. Random mating
+3. No mutations
+4. No migration
+5. No selection
+
+**Equations:**
+• p + q = 1 (allele frequencies)
+• p² + 2pq + q² = 1 (genotype frequencies)
+
+**Example:** If 1 in 1000 has albinism (q² = 0.001):
+• q = √0.001 = 0.032
+• p = 1 - 0.032 = 0.968
+• Carriers (2pq) = 2 × 0.968 × 0.032 = 6.2%
+
+Would you like to practice with SA population data?`;
+                }
+                
+                else if (lower.includes('evolution') || lower.includes('darwin')) {
+                    return `**Theory of Evolution by Natural Selection:**
+
+**Darwin's Observations:**
+1. **Variation** exists in populations
+2. **Overproduction** of offspring
+3. **Struggle for existence** (competition)
+4. **Survival of the fittest** (differential survival)
+5. **Inheritance** of traits
+6. **Speciation** over time
+
+**SA Evidence:**
+• Fossil record at Cradle of Humankind
+• Cape Floristic Region adaptive radiation
+• Cichlid fish in Lake Malawi
+
+**Types of Selection:**
+• Stabilizing (human birth weight)
+• Directional (antibiotic resistance)
+• Disruptive (different beak sizes)`;
+                }
+                
+                else if (lower.includes('exam') || lower.includes('study') || lower.includes('tips')) {
+                    return `**Life Sciences Exam Tips:**
+
+**Paper 1 (2.5 hours):**
+• Multiple choice: 50 marks (50 min)
+• Long questions: 100 marks (100 min)
+• **Time management:** 1 mark = 1 minute
+
+**Practical Skills to Master:**
+• Microscope calculations (M = eyepiece × objective)
+• Graph drawing (title, labeled axes, correct scale)
+• Experimental design (variables, controls)
+• Data analysis (trends, anomalies)
+
+**Essay Structure:**
+1. Introduction (define key terms)
+2. Body (bullet points with explanations)
+3. Application (SA context)
+4. Conclusion
+
+**Need help with a specific topic?** Ask me anything!`;
+                }
+                
+                else {
+                    return `I'd love to help you with **Life Sciences**! 
+
+I can assist with:
+• **Grade 10:** Chemistry of life, cells, photosynthesis, biodiversity
+• **Grade 11:** Ecology, human physiology, genetics basics  
+• **Grade 12:** DNA & protein synthesis, meiosis, evolution, reproduction
+
+**What would you like to learn?** Try asking about:
+• Specific concepts (e.g., "What is mitosis?")
+• Practical procedures (e.g., "How do I test for starch?")
+• Problem solving (e.g., "Help with Punnett squares")
+• Exam preparation tips
+
+Or tell me what you're currently studying!`;
+                }
+            },
+
+            speak(text) {
+                // Text-to-speech option (disabled by default, can be enabled)
+                if ('speechSynthesis' in window && window.enableTTS) {
+                    const utterance = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g, ''));
+                    utterance.rate = 0.9;
+                    speechSynthesis.speak(utterance);
+                }
+            },
+
+            clearChat() {
+                document.getElementById('chatMessages').innerHTML = `
+                    <div class="chat-message flex gap-3">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white text-xs"></i>
+                        </div>
+                        <div class="bg-slate-800 rounded-lg p-3 text-sm max-w-[85%] text-slate-200">
+                            Chat cleared! How can I help you today?
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+        // ==========================================
+        // AUTHENTICATION SYSTEM
+        // ==========================================
+        const auth = {
+            currentUser: null,
+            
+            async init() {
+                // Check for saved session
+                const session = localStorage.getItem('biolearn_session');
+                if (session) {
+                    try {
+                        const user = JSON.parse(session);
+                        this.currentUser = user;
+                        this.updateUI();
+                        return true;
+                    } catch (e) {
+                        localStorage.removeItem('biolearn_session');
+                    }
+                }
+                return false;
+            },
+
+            switchTab(tab) {
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                const loginTab = document.getElementById('loginTab');
+                const registerTab = document.getElementById('registerTab');
+                
+                if (tab === 'login') {
+                    loginForm.classList.remove('hidden');
+                    registerForm.classList.add('hidden');
+                    loginTab.classList.add('bg-green-500', 'text-slate-900');
+                    loginTab.classList.remove('text-slate-400');
+                    registerTab.classList.remove('bg-green-500', 'text-slate-900');
+                    registerTab.classList.add('text-slate-400');
+                } else {
+                    loginForm.classList.add('hidden');
+                    registerForm.classList.remove('hidden');
+                    registerTab.classList.add('bg-green-500', 'text-slate-900');
+                    registerTab.classList.remove('text-slate-400');
+                    loginTab.classList.remove('bg-green-500', 'text-slate-900');
+                    loginTab.classList.add('text-slate-400');
+                }
+            },
+
+            async login(e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                ui.showLoading();
+                
+                try {
+                    // Simulate API call
+                    await new Promise(r => setTimeout(r, 1000));
+                    
+                    // Check local DB
+                    const users = await db.getAll('users');
+                    const user = users.find(u => u.email === email && u.password === password);
+                    
+                    if (user) {
+                        this.currentUser = user;
+                        localStorage.setItem('biolearn_session', JSON.stringify(user));
+                        this.updateUI();
+                        router.navigate('dashboard');
+                        ui.showToast('Welcome back, ' + user.name + '!', 'success');
+                    } else {
+                        throw new Error('Invalid credentials');
+                    }
+                } catch (error) {
+                    ui.showToast(error.message || 'Login failed', 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+
+            async register(e) {
+                e.preventDefault();
+                const name = document.getElementById('regName').value;
+                const grade = parseInt(document.getElementById('regGrade').value);
+                const email = document.getElementById('regEmail').value;
+                const password = document.getElementById('regPassword').value;
+                
+                ui.showLoading();
+                
+                try {
+                    await new Promise(r => setTimeout(r, 1000));
+                    
+                    // Check if email exists
+                    const existing = await db.getAll('users');
+                    if (existing.some(u => u.email === email)) {
+                        throw new Error('Email already registered');
+                    }
+                    
+                    const newUser = {
+                        name,
+                        grade,
+                        email,
+                        password, // In production, hash this!
+                        createdAt: Date.now(),
+                        progress: {},
+                        streak: 0,
+                        lastActive: Date.now(),
+                        points: 0
+                    };
+                    
+                    const id = await db.put('users', newUser);
+                    newUser.id = id;
+                    
+                    this.currentUser = newUser;
+                    localStorage.setItem('biolearn_session', JSON.stringify(newUser));
+                    this.updateUI();
+                    router.navigate('dashboard');
+                    ui.showToast('Account created successfully!', 'success');
+                } catch (error) {
+                    ui.showToast(error.message || 'Registration failed', 'error');
+                } finally {
+                    ui.hideLoading();
+                }
+            },
+
+            guestLogin() {
+                const guestUser = {
+                    id: 'guest',
+                    name: 'Guest Student',
+                    grade: 10,
+                    email: 'guest@biolearn.local',
+                    isGuest: true,
+                    progress: {},
+                    streak: 0,
+                    points: 0
+                };
+                
+                this.currentUser = guestUser;
+                localStorage.setItem('biolearn_session', JSON.stringify(guestUser));
+                this.updateUI();
+                router.navigate('dashboard');
+                ui.showToast('Welcome! Sign up to save your progress.', 'info');
+            },
+
+            logout() {
+                this.currentUser = null;
+                localStorage.removeItem('biolearn_session');
+                document.getElementById('userDropdown').classList.add('hidden');
+                router.navigate('auth');
+                ui.showToast('Logged out successfully', 'info');
+            },
+
+            updateUI() {
+                const user = this.currentUser;
+                if (!user) return;
+                
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('userGrade').textContent = 'Grade ' + user.grade;
+                document.getElementById('userInitials').textContent = user.name.charAt(0).toUpperCase();
+                document.getElementById('dashName').textContent = user.name.split(' ')[0];
+                
+                // Update profile form
+                document.getElementById('profileName').value = user.name;
+                document.getElementById('profileEmail').value = user.email;
+                document.getElementById('profileGrade').value = user.grade;
+                
+                // Show user menu
+                document.getElementById('userMenu').classList.remove('hidden');
+            },
+
+            toggleMenu() {
+                const menu = document.getElementById('userDropdown');
+                menu.classList.toggle('hidden');
+            },
+
+            async updateProfile(e) {
+                e.preventDefault();
+                if (!this.currentUser || this.currentUser.isGuest) {
+                    ui.showToast('Please create an account to save changes', 'error');
+                    return;
+                }
+                
+                const updates = {
+                    ...this.currentUser,
+                    name: document.getElementById('profileName').value,
+                    grade: parseInt(document.getElementById('profileGrade').value),
+                    school: document.getElementById('profileSchool').value
+                };
+                
+                await db.put('users', updates);
+                this.currentUser = updates;
+                localStorage.setItem('biolearn_session', JSON.stringify(updates));
+                this.updateUI();
+                ui.showToast('Profile updated!', 'success');
+            }
+        };
+
+        // ==========================================
+        // ROUTER
+        // ==========================================
+        const router = {
+            currentRoute: 'dashboard',
+            history: [],
+            
+            navigate(route, params = {}) {
+                this.history.push(this.currentRoute);
+                this.currentRoute = route;
+                
+                // Hide all views
+                document.querySelectorAll('[id$="View"]').forEach(el => el.classList.add('hidden'));
+                
+                // Show target view
+                const viewMap = {
+                    'auth': 'authView',
+                    'dashboard': 'dashboardView',
+                    'curriculum': 'curriculumView',
+                    'lesson': 'lessonView',
+                    'progress': 'progressView',
+                    'profile': 'profileView'
+                };
+                
+                const viewId = viewMap[route];
+                if (viewId) {
+                    document.getElementById(viewId).classList.remove('hidden');
+                }
+                
+                // Update nav active states
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('text-white', 'bg-white/10');
+                    btn.classList.add('text-slate-300');
+                    if (btn.dataset.route === route) {
+                        btn.classList.add('text-white', 'bg-white/10');
+                        btn.classList.remove('text-slate-300');
+                    }
+                });
+                
+                // Route-specific initialization
+                if (route === 'dashboard') dashboard.init();
+                if (route === 'curriculum') curriculum.init();
+                if (route === 'progress') progress.init();
+                if (route === 'lesson') lesson.init(params);
+                
+                window.scrollTo(0, 0);
+            },
+            
+            back() {
+                const prev = this.history.pop() || 'dashboard';
+                this.navigate(prev);
+            }
+        };
+
+        // ==========================================
+        // DASHBOARD CONTROLLER
+        // ==========================================
+        const dashboard = {
+            async init() {
+                const user = auth.currentUser;
+                if (!user) {
+                    router.navigate('auth');
+                    return;
+                }
+                
+                // Update stats
+                document.getElementById('dashProgress').textContent = (user.progress?.overall || 0) + '%';
+                document.getElementById('dashStreak').textContent = user.streak || 0;
+                document.getElementById('dashPoints').textContent = user.points || 0;
+                
+                // Daily goal
+                const today = new Date().toDateString();
+                const lastStudy = user.lastStudyDate;
+                const studiedToday = lastStudy === today;
+                const dailyPercent = studiedToday ? 100 : Math.min(100, ((user.dailyMinutes || 0) / 30) * 100);
+                
+                document.getElementById('dailyGoalPercent').textContent = Math.round(dailyPercent) + '%';
+                document.getElementById('dailyGoalCircle').style.strokeDashoffset = 351.86 - (351.86 * dailyPercent / 100);
+                document.getElementById('dailyGoalText').textContent = studiedToday ? 
+                    'Great job today! Come back tomorrow.' : 
+                    'Study for 30 minutes today';
+                
+                // Current topic
+                const currentTopic = user.currentTopic || 'g10-chem-life';
+                const topicData = this.findTopic(currentTopic);
+                if (topicData) {
+                    document.getElementById('currentSubject').textContent = `Grade ${topicData.grade} • ${topicData.term}`;
+                    document.getElementById('currentLesson').textContent = topicData.title;
+                    document.getElementById('currentDesc').textContent = topicData.description;
+                    
+                    const progress = user.progress?.[currentTopic] || 0;
+                    document.getElementById('currentProgress').textContent = progress + '%';
+                    document.getElementById('currentProgressBar').style.width = progress + '%';
+                }
+                
+                // Activity list
+                this.renderActivity();
+            },
+            
+            findTopic(id) {
+                for (const [grade, data] of Object.entries(curriculumData)) {
+                    const topic = data.topics.find(t => t.id === id);
+                    if (topic) return { ...topic, grade };
+                }
+                return null;
+            },
+            
+            renderActivity() {
+                const activities = [
+                    { type: 'complete', text: 'Completed: Cell Structure Quiz', sub: 'Score: 85% • 2 hours ago', icon: 'check', color: 'green' },
+                    { type: 'ai', text: 'AI Tutor Session', sub: 'Asked about photosynthesis • Yesterday', icon: 'robot', color: 'blue' },
+                    { type: 'start', text: 'Started: Chemistry of Life', sub: 'Grade 10 • 2 days ago', icon: 'play', color: 'purple' }
+                ];
+                
+                const container = document.getElementById('activityList');
+                container.innerHTML = activities.map(act => `
+                    <div class="flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition cursor-pointer group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-${act.color}-500/20 flex items-center justify-center group-hover:scale-110 transition">
+                                <i class="fas fa-${act.icon} text-${act.color}-400"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm">${act.text}</div>
+                                <div class="text-xs text-slate-400">${act.sub}</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-600 group-hover:text-slate-400 transition"></i>
+                    </div>
+                `).join('');
+            },
+            
+            continueLearning() {
+                const user = auth.currentUser;
+                const topic = user?.currentTopic || 'g10-chem-life';
+                router.navigate('lesson', { topicId: topic });
+            },
+            
+            startDailyChallenge() {
+                ui.showToast('Daily challenge coming soon!', 'info');
+            }
+        };
+
+        // ==========================================
+        // CURRICULUM CONTROLLER
+        // ==========================================
+        const curriculum = {
+            init() {
+                this.render();
+            },
+            
+            render(filterGrade = 'all', filterTerm = 'all') {
+                const container = document.getElementById('curriculumGrid');
+                container.innerHTML = '';
+                
+                Object.entries(curriculumData).forEach(([grade, data]) => {
+                    if (filterGrade !== 'all' && filterGrade !== grade) return;
+                    
+                    data.topics.forEach(topic => {
+                        if (filterTerm !== 'all' && topic.term != filterTerm) return;
+                        
+                        const card = document.createElement('div');
+                        card.className = 'glass rounded-2xl p-6 hover:border-green-500/30 transition cursor-pointer group';
+                        card.onclick = () => router.navigate('lesson', { topicId: topic.id });
+                        
+                        card.innerHTML = `
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-${data.color}-500/20 flex items-center justify-center text-${data.color}-400 group-hover:scale-110 transition">
+                                    <i class="fas fa-book text-xl"></i>
+                                </div>
+                                <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">Term ${topic.term}</span>
+                            </div>
+                            <h3 class="font-display text-lg font-bold text-white mb-2 group-hover:text-green-400 transition">${topic.title}</h3>
+                            <p class="text-slate-400 text-sm mb-4 line-clamp-2">${topic.description}</p>
+                            <div class="flex items-center justify-between text-xs text-slate-500">
+                                <span><i class="fas fa-clock mr-1"></i>${topic.duration}</span>
+                                <span><i class="fas fa-list-ol mr-1"></i>${topic.steps.length || topic.steps} steps</span>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-slate-700/50">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">Progress</span>
+                                    <span class="text-green-400">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                    <div class="bg-${data.color}-500 h-1.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        container.appendChild(card);
+                    });
+                });
+            },
+            
+            filterGrade(grade) {
+                const term = document.getElementById('termFilter').value;
+                this.render(grade, term);
+            },
+            
+            filterTerm(term) {
+                const grade = document.getElementById('gradeFilter').value;
+                this.render(grade, term);
+            }
+        };
+
+        // ==========================================
+        // LESSON CONTROLLER
+        // ==========================================
+        const lesson = {
+            currentTopic: null,
+            currentStep: 0,
+            
+            init(params) {
+                const topicId = params.topicId || 'g10-chem-life';
+                this.currentTopic = this.findTopic(topicId);
+                this.currentStep = 0;
+                
+                if (!this.currentTopic) {
+                    router.navigate('dashboard');
+                    return;
+                }
+                
+                // Update header
+                document.getElementById('lessonTitle').textContent = this.currentTopic.title;
+                document.getElementById('lessonDescription').textContent = this.currentTopic.description;
+                document.getElementById('lessonGrade').textContent = `Grade ${this.currentTopic.grade}`;
+                document.getElementById('lessonTerm').textContent = `Term ${this.currentTopic.term}`;
+                
+                // Render steps
+                this.renderSteps();
+                this.renderContent();
+                this.updateButtons();
+            },
+            
+            findTopic(id) {
+                for (const [grade, data] of Object.entries(curriculumData)) {
+                    const topic = data.topics.find(t => t.id === id);
+                    if (topic) return { ...topic, grade: parseInt(grade) };
+                }
+                return null;
+            },
+            
+            renderSteps() {
+                const container = document.getElementById('lessonSteps');
+                const steps = this.currentTopic.steps;
+                
+                container.innerHTML = steps.map((step, idx) => `
+                    <div class="flex items-center gap-2 flex-shrink-0 ${idx === this.currentStep ? 'opacity-100' : 'opacity-50'}">
+                        <div class="w-8 h-8 rounded-full ${idx === this.currentStep ? 'bg-green-500 text-slate-900' : idx < this.currentStep ? 'bg-green-500/50 text-green-400' : 'bg-slate-700 text-slate-400'} flex items-center justify-center text-sm font-bold transition">
+                            ${idx < this.currentStep ? '✓' : idx + 1}
+                        </div>
+                        <span class="text-sm ${idx === this.currentStep ? 'text-white font-medium' : 'text-slate-400'} whitespace-nowrap">${step.title || 'Step ' + (idx + 1)}</span>
+                    </div>
+                    ${idx < steps.length - 1 ? '<div class="w-8 h-px bg-slate-600 flex-shrink-0"></div>' : ''}
+                `).join('');
+            },
+            
+            renderContent() {
+                const container = document.getElementById('lessonContent');
+                const step = this.currentTopic.steps[this.currentStep];
+                
+                // Generate content based on step type and topic
+                let content = '';
+                
+                if (this.currentTopic.id === 'g10-chem-life' && this.currentStep === 3) {
+                    // Chemical tests practical
+                    content = `
+                        <div class="space-y-6">
+                            <div class="bg-green-900/20 border border-green-500/30 rounded-xl p-6">
+                                <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-flask"></i>
+                                    Practical: Testing for Organic Compounds
+                                </h3>
+                                <p class="text-slate-300 mb-4">Learn to identify carbohydrates, proteins, and lipids using chemical tests.</p>
+                            </div>
+                            
+                            <div class="grid gap-4">
+                                ${this.renderTestCard('A', 'Testing for Reducing Sugars (Benedict\'s Test)', 'blue', `
+                                    <ol class="list-decimal list-inside space-y-2 ml-4 text-slate-300">
+                                        <li>Add 2cm³ of food sample to a test tube</li>
+                                        <li>Add equal volume of Benedict's solution (blue)</li>
+                                        <li>Heat in water bath at 80°C for 2-3 minutes</li>
+                                        <li>Observe color change:
+                                            <ul class="list-disc list-inside ml-6 mt-1 text-slate-400">
+                                                <li>Blue → No reducing sugar</li>
+                                                <li>Green → Trace amount</li>
+                                                <li>Yellow → Moderate amount</li>
+                                                <li>Orange/Brick red → High amount</li>
+                                            </ul>
+                                        </li>
+                                    </ol>
+                                    <div class="mt-4 bg-blue-900/30 border border-blue-500/30 rounded-lg p-3">
+                                        <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
+                                        <strong>SA Context:</strong> Test maize meal (pap) vs. table sugar to see which contains reducing sugars.
+                                    </div>
+                                `)}
+                                
+                                ${this.renderTestCard('B', 'Testing for Starch (Iodine Test)', 'purple', `
+                                    <ol class="list-decimal list-inside space-y-2 ml-4 text-slate-300">
+                                        <li>Place food sample on white tile or in test tube</li>
+                                        <li>Add 2-3 drops of iodine solution (brown)</li>
+                                        <li>Observe immediately - no heating required</li>
+                                        <li>Positive result: Blue-black color indicates starch</li>
+                                    </ol>
+                                    <div class="mt-4 bg-red-900/30 border border-red-500/30 rounded-lg p-3">
+                                        <i class="fas fa-exclamation-triangle text-red-400 mr-2"></i>
+                                        <strong>Safety:</strong> Iodine is toxic. Do not ingest. Wash hands after handling.
+                                    </div>
+                                `)}
+                                
+                                ${this.renderTestCard('C', 'Testing for Proteins (Biuret Test)', 'pink', `
+                                    <ol class="list-decimal list-inside space-y-2 ml-4 text-slate-300">
+                                        <li>Add 2cm³ of food sample to test tube</li>
+                                        <li>Add 2cm³ of Biuret solution A (sodium hydroxide)</li>
+                                        <li>Add 2-3 drops of Biuret solution B (copper sulfate)</li>
+                                        <li>Shake gently to mix - no heating needed</li>
+                                        <li>Positive result: Purple/violet color indicates protein</li>
+                                    </ol>
+                                `)}
+                                
+                                ${this.renderTestCard('D', 'Testing for Lipids (Emulsion Test)', 'orange', `
+                                    <ol class="list-decimal list-inside space-y-2 ml-4 text-slate-300">
+                                        <li>Add 2cm³ of food sample to test tube</li>
+                                        <li>Add 2cm³ of ethanol and shake vigorously</li>
+                                        <li>Pour mixture into tube containing water</li>
+                                        <li>Positive result: White emulsion (milky layer) indicates lipids</li>
+                                    </ol>
+                                `)}
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-green-900/20 to-blue-900/20 rounded-xl p-6 border border-green-500/30">
+                                <h4 class="font-bold mb-4 flex items-center gap-2">
+                                    <i class="fas fa-vial text-green-400"></i>
+                                    Virtual Lab Simulation
+                                </h4>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    ${['sugar', 'starch', 'protein', 'lipid'].map(type => `
+                                        <button onclick="lesson.runVirtualTest('${type}')" class="p-4 rounded-lg bg-slate-800 hover:bg-slate-700 transition border border-slate-600 text-center group">
+                                            <i class="fas fa-${type === 'sugar' ? 'tint text-blue-400' : type === 'starch' ? 'bread-slice text-yellow-400' : type === 'protein' ? 'egg text-purple-400' : 'oil-can text-orange-400'} text-2xl mb-2 group-hover:scale-110 transition"></i>
+                                            <div class="text-sm capitalize">${type}</div>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <div id="virtualResult" class="mt-4 hidden"></div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Generic step content
+                    content = `
+                        <div class="space-y-6">
+                            <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                                <h3 class="text-xl font-bold text-white mb-4">${step.title || 'Step ' + (this.currentStep + 1)}</h3>
+                                <div class="prose prose-invert max-w-none">
+                                    <p class="text-slate-300">${step.content || 'Content for this step is being prepared.'}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-center">
+                                <button onclick="aiTutor.ask('Explain ${step.title} in detail')" class="px-6 py-3 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition flex items-center gap-2">
+                                    <i class="fas fa-robot"></i>
+                                    Ask AI Tutor about this topic
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = content;
+            },
+            
+            renderTestCard(letter, title, color, content) {
+                return `
+                    <div class="step-card bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden" onclick="this.classList.toggle('active'); this.querySelector('.step-detail').classList.toggle('hidden'); this.querySelector('.chevron').classList.toggle('rotate-180')">
+                        <div class="p-4 flex items-start gap-4 cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-${color}-500/20 text-${color}-400 flex items-center justify-center font-bold flex-shrink-0">${letter}</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-white">${title}</h4>
+                            </div>
+                            <i class="fas fa-chevron-down text-slate-500 transition-transform chevron"></i>
+                        </div>
+                        <div class="step-detail hidden px-4 pb-4 border-t border-slate-700/50 pt-4">
+                            ${content}
+                        </div>
+                    </div>
+                `;
+            },
+            
+            runVirtualTest(type) {
+                const resultDiv = document.getElementById('virtualResult');
+                resultDiv.classList.remove('hidden');
+                
+                const tests = {
+                    sugar: {
+                        color: 'orange',
+                        icon: 'tint',
+                        title: 'Benedict\'s Test Result',
+                        desc: 'The solution changes from <strong>blue</strong> → <strong>green</strong> → <strong>yellow</strong> → <strong>orange</strong>!',
+                        science: 'Reducing sugars donate electrons to copper(II) ions, reducing them to copper(I) oxide (colored precipitate).'
+                    },
+                    starch: {
+                        color: 'blue',
+                        icon: 'bread-slice',
+                        title: 'Iodine Test Result',
+                        desc: 'The brown iodine solution turns <strong>blue-black</strong> instantly!',
+                        science: 'Iodine fits inside amylose helices, forming a complex that absorbs light differently.'
+                    },
+                    protein: {
+                        color: 'purple',
+                        icon: 'egg',
+                        title: 'Biuret Test Result',
+                        desc: 'The solution turns <strong>purple/violet</strong>!',
+                        science: 'Copper(II) ions form a complex with nitrogen atoms in peptide bonds.'
+                    },
+                    lipid: {
+                        color: 'gray',
+                        icon: 'oil-can',
+                        title: 'Emulsion Test Result',
+                        desc: 'A <strong>milky-white emulsion</strong> forms on top!',
+                        science: 'Lipids are ethanol-soluble but water-insoluble. Tiny droplets scatter light.'
+                    }
+                };
+                
+                const test = tests[type];
+                resultDiv.innerHTML = `
+                    <div class="bg-slate-800 rounded-lg p-4 border border-${test.color}-500/30 animate-slide-up">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-full bg-${test.color}-500/20 flex items-center justify-center text-${test.color}-400">
+                                <i class="fas fa-${test.icon} text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg mb-2 text-${test.color}-400">${test.title}</h4>
+                                <p class="text-slate-300 mb-3">${test.desc}</p>
+                                <div class="bg-slate-900/50 rounded p-3 text-sm text-slate-400 border-l-4 border-${test.color}-500">
+                                    <strong>Science:</strong> ${test.science}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            nextStep() {
+                if (this.currentStep < this.currentTopic.steps.length - 1) {
+                    this.currentStep++;
+                    this.renderSteps();
+                    this.renderContent();
+                    this.updateButtons();
+                    window.scrollTo(0, 0);
+                } else {
+                    this.completeLesson();
+                }
+            },
+            
+            previousStep() {
+                if (this.currentStep > 0) {
+                    this.currentStep--;
+                    this.renderSteps();
+                    this.renderContent();
+                    this.updateButtons();
+                    window.scrollTo(0, 0);
+                }
+            },
+            
+            updateButtons() {
+                document.getElementById('prevStepBtn').disabled = this.currentStep === 0;
+                document.getElementById('nextStepBtn').innerHTML = this.currentStep === this.currentTopic.steps.length - 1 ? 
+                    'Complete Lesson <i class="fas fa-check ml-2"></i>' : 
+                    'Next Step <i class="fas fa-arrow-right ml-2"></i>';
+            },
+            
+            async completeLesson() {
+                ui.showToast('Lesson completed! +50 points', 'success');
+                
+                // Update user progress
+                if (auth.currentUser && !auth.currentUser.isGuest) {
+                    const progress = Math.min(100, (auth.currentUser.progress?.[this.currentTopic.id] || 0) + 20);
+                    auth.currentUser.progress = auth.currentUser.progress || {};
+                    auth.currentUser.progress[this.currentTopic.id] = progress;
+                    auth.currentUser.points = (auth.currentUser.points || 0) + 50;
+                    
+                    await db.put('users', auth.currentUser);
+                    localStorage.setItem('biolearn_session', JSON.stringify(auth.currentUser));
+                }
+                
+                router.navigate('dashboard');
+            }
+        };
+
+        // ==========================================
+        // PROGRESS CONTROLLER
+        // ==========================================
+        const progress = {
+            async init() {
+                const user = auth.currentUser;
+                if (!user) return;
+                
+                // Calculate overall progress
+                const totalTopics = Object.values(curriculumData).reduce((acc, g) => acc + g.topics.length, 0);
+                const completedTopics = Object.keys(user.progress || {}).length;
+                const overallPercent = Math.round((completedTopics / totalTopics) * 100);
+                
+                document.getElementById('overallPercent').textContent = overallPercent + '%';
+                
+                // Render chart
+                this.renderChart(overallPercent);
+                
+                // Grade breakdown
+                const breakdown = document.getElementById('gradeBreakdown');
+                breakdown.innerHTML = [10, 11, 12].map(grade => {
+                    const topics = curriculumData[grade].topics;
+                    const completed = topics.filter(t => user.progress?.[t.id] >= 100).length;
+                    const percent = Math.round((completed / topics.length) * 100);
+                    
+                    return `
+                        <div class="flex items-center gap-4">
+                            <div class="w-20 font-semibold text-slate-300">Grade ${grade}</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">${completed}/${topics.length} topics</span>
+                                    <span class="text-green-400">${percent}%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2">
+                                    <div class="bg-${grade === 10 ? 'blue' : grade === 11 ? 'purple' : 'orange'}-500 h-2 rounded-full transition-all" style="width: ${percent}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Achievements
+                const achievements = [
+                    { icon: 'fire', name: 'On Fire!', desc: '5-day streak', color: 'yellow', unlocked: (user.streak || 0) >= 5 },
+                    { icon: 'star', name: 'First Steps', desc: 'Complete first lesson', color: 'green', unlocked: completedTopics >= 1 },
+                    { icon: 'trophy', name: 'Scholar', desc: 'Complete 10 lessons', color: 'purple', unlocked: completedTopics >= 10 },
+                    { icon: 'brain', name: 'Genius', desc: 'Score 100% on quiz', color: 'pink', unlocked: false }
+                ];
+                
+                document.getElementById('achievementsGrid').innerHTML = achievements.map(ach => `
+                    <div class="p-4 rounded-xl ${ach.unlocked ? `bg-${ach.color}-500/10 border-${ach.color}-500/30` : 'bg-slate-800/50 border-slate-700'} border text-center ${ach.unlocked ? '' : 'opacity-50'}">
+                        <div class="w-12 h-12 rounded-full ${ach.unlocked ? `bg-${ach.color}-500/20 text-${ach.color}-400` : 'bg-slate-700 text-slate-500'} flex items-center justify-center mx-auto mb-2 text-xl">
+                            <i class="fas fa-${ach.icon}"></i>
+                        </div>
+                        <div class="font-semibold text-sm ${ach.unlocked ? `text-${ach.color}-400` : 'text-slate-400'}">${ach.name}</div>
+                        <div class="text-xs text-slate-500 mt-1">${ach.desc}</div>
+                    </div>
+                `).join('');
+            },
+            
+            renderChart(percent) {
+                const ctx = document.getElementById('progressChart');
+                if (!ctx) return;
+                
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Completed', 'Remaining'],
+                        datasets: [{
+                            data: [percent, 100 - percent],
+                            backgroundColor: ['#4ade80', '#1e293b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        cutout: '75%',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        }
+                    }
+                });
+            }
+        };
+
+        // ==========================================
+        // UI UTILITIES
+        // ==========================================
+        const ui = {
+            showLoading() {
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+            },
+            
+            hideLoading() {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            },
+            
+            showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const colors = {
+                    success: 'border-green-500',
+                    error: 'border-red-500',
+                    info: 'border-blue-500'
+                };
+                
+                toast.style.borderLeftColor = type === 'success' ? '#4ade80' : type === 'error' ? '#ef4444' : '#3b82f6';
+                
+                toast.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-${type === 'success' ? 'check-circle text-green-400' : type === 'error' ? 'exclamation-circle text-red-400' : 'info-circle text-blue-400'}"></i>
+                        <span class="text-sm text-slate-200">${message}</span>
+                    </div>
+                `;
+                
+                container.appendChild(toast);
+                
+                setTimeout(() => toast.classList.add('show'), 100);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            },
+            
+            toggleMobileMenu() {
+                const menu = document.getElementById('mobileMenu');
+                menu.classList.toggle('translate-x-full');
+            }
+        };
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize database
+            await db.init();
+            
+            // Check auth
+            const isAuth = await auth.init();
+            
+            // Setup offline detection
+            window.addEventListener('online', () => {
+                document.getElementById('offlineIndicator').classList.remove('show');
+                ui.showToast('Back online!', 'success');
+            });
+            
+            window.addEventListener('offline', () => {
+                document.getElementById('offlineIndicator').classList.add('show');
+            });
+            
+            if (!navigator.onLine) {
+                document.getElementById('offlineIndicator').classList.add('show');
+            }
+            
+            // Route based on auth
+            if (isAuth) {
+                router.navigate('dashboard');
+            } else {
+                router.navigate('auth');
+            }
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#userMenu')) {
+                    document.getElementById('userDropdown').classList.add('hidden');
+                }
+            });
+            
+            // Service Worker registration (for PWA)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('data:text/javascript,' + encodeURIComponent(`
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+                `)).catch(() => console.log('SW registration skipped'));
+            }
+        });
+
+        // Expose globals for onclick handlers
+        window.router = router;
+        window.auth = auth;
+        window.aiTutor = aiTutor;
+        window.dashboard = dashboard;
+        window.curriculum = curriculum;
+        window.lesson = lesson;
+        window.progress = progress;
+        window.ui = ui;
+    </script>
+</body>
+</html>
